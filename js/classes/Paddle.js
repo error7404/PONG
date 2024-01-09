@@ -18,9 +18,9 @@ class Paddle {
 
 		window.addEventListener('keydown', (event) => {
 			if (event.code == keys.up)
-				this.y += 0.1;
+				this.mesh.position.y += 0.1;
 			if (event.code == keys.down)
-				this.y -= 0.1;
+				this.mesh.position.y -= 0.1;
 		});
 	}
 
