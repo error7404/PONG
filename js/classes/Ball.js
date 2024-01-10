@@ -1,5 +1,13 @@
 import * as THREE from 'three';
 import { Cube } from './Cube.js';
+import { Paddle } from './Paddle.js';
+
+/**
+ * @typedef {Object} Point
+ * @property {number} x - The x coordinate.
+ * @property {number} y - The y coordinate.
+ * @property {number} z - The z coordinate.
+ */
 
 class Ball extends Cube {
 	constructor(position = {x: 0, y:0, z:0}, direction = new THREE.Vector2(1, 1), speed = 10, size = 0.25, color = 0xFFFFFF) {
@@ -9,6 +17,10 @@ class Ball extends Cube {
 		this.setDirection(direction);
 	}
 
+	/**
+	 * Sets the direction of the ball and normalizes it
+	 * @param {THREE.Vector2} direction The new direction of the ball
+	 */
 	setDirection(direction) {
 		this.direction = {
 			x: direction.x,
@@ -19,7 +31,14 @@ class Ball extends Cube {
 		this.direction.y /= magnitude;
 	}
 
-	paddleInteraction(paddle, step, position, meshes) {
+	/**
+	 * Checks if the ball will hit a paddle on the next step and returns the height at which it will hit the paddle
+	 * @param {Paddle} paddle The paddle to check for collision
+	 * @param {Point} step The position of the ball after the next step
+	 * @param {Point} position The current position of the ball
+	 * @returns {Number} The height at which the ball hit the paddle, or -1 if it didn't hit the paddle
+	 */
+	paddleInteraction(paddle, step, position) {
 		const halfSize = this.size / 2;
 		const ballXChecks = [
 			position.x - halfSize,
@@ -38,8 +57,8 @@ class Ball extends Cube {
 			Math.min(...ballXChecks) < paddle.mesh.position.x + paddle.width / 2 &&
 			Math.max(...ballYChecks) > paddle.mesh.position.y - paddle.height / 2 &&
 			Math.min(...ballYChecks) < paddle.mesh.position.y + paddle.height / 2)
-			return (true);
-		return (false);
+			return (Math.min(Math.max(position.y - paddle.mesh.position.y + paddle.height / 2, 0), paddle.height));
+		return (-1);
 	}
 
 	update(delta, p) {
@@ -63,29 +82,33 @@ class Ball extends Cube {
 			this.direction.y *= -1;
 		}
 
-		if (this.paddleInteraction(p.meshes.paddleR, step, this.mesh.position, p.meshes) &&
-			this.direction.x > 0) {
+		const paddleRIntersection = this.paddleInteraction(p.meshes.paddleR, step, this.mesh.position);
+		if (paddleRIntersection != -1 && this.direction.x > 0) {
 			if (step.x >= p.rules.maxWidth - this.size / 2)
 				step.x = p.rules.maxWidth - this.size / 2;
 			this.direction.x *= -1;
+			this.setDirection(new THREE.Vector2(this.direction.x, paddleRIntersection / p.meshes.paddleR.height * 2 - 1));
 			p.meshes.paddleR.bump(p);
 			return;
 		}
-		else if (this.paddleInteraction(p.meshes.paddleL, step, this.mesh.position, p.meshes) &&
-			this.direction.x < 0) {
+		const paddleLIntersection = this.paddleInteraction(p.meshes.paddleL, step, this.mesh.position);
+		if (paddleLIntersection != -1 && this.direction.x < 0) {
 			if (step.x <= -p.rules.maxWidth + this.size / 2)
 				step.x = -p.rules.maxWidth + this.size / 2;
 			this.direction.x *= -1;
+			this.setDirection(new THREE.Vector2(this.direction.x, paddleLIntersection / p.meshes.paddleL.height * 2 - 1));
 			p.meshes.paddleL.bump(p);
 			return;
 		}
-		else if (step.x >= p.rules.maxWidth - this.size / 2)	{
+
+		if (step.x >= p.rules.maxWidth - this.size / 2)	{
 			this.mesh.position.x = p.rules.maxWidth - this.size / 2;
 			this.direction.x *= -1;
 			this.mesh.visible = false;
 			step.x = 0;
 			step.y = 0;
 			this.timeout = 100;
+			console.log("Player 1 win 1 point!");
 		}
 		else if (step.x <= -p.rules.maxWidth + this.size / 2) {
 			this.mesh.position.x = -p.rules.maxWidth + this.size / 2;
@@ -94,6 +117,7 @@ class Ball extends Cube {
 			step.x = 0;
 			step.y = 0;
 			this.timeout = 100;
+			console.log("Player 2 wins 1 point!");
 		}
 
 		this.mesh.position.x = step.x;

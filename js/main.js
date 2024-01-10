@@ -21,7 +21,7 @@ function main() {
 		maxWidth: visibleWidth / 2,
 		maxPoints: 5,
 		paddleSpeed: 10,
-		ballSpeed: 5
+		ballSpeed: 10
 	}
 
 	const meshes = {};
@@ -82,8 +82,8 @@ function main() {
 		camera.updateProjectionMatrix();
 		const visibleWidth = visibleHeight * camera.aspect;
 		proprietes.rules.maxWidth = visibleWidth / 2;
-		paddleL.mesh.position.set(-(visibleWidth / 2) / 1.2, 0, 0);
-		paddleR.mesh.position.set((visibleWidth / 2) / 1.2, 0, 0);
+		paddleL.mesh.position.x = -(visibleWidth / 2) / 1.2;
+		paddleR.mesh.position.x = (visibleWidth / 2) / 1.2;
 		if (ball.mesh.position.x > rules.maxWidth - ball.size / 2)
 		{
 			ball.mesh.position.x = rules.maxWidth - ball.size / 2;
