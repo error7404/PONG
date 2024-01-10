@@ -10,7 +10,7 @@ import { Paddle } from './Paddle.js';
  */
 
 class Ball extends Cube {
-	constructor(position = {x: 0, y:0, z:0}, direction = new THREE.Vector2(1, 1), speed = 10, size = 0.25, color = 0xFFFFFF) {
+	constructor(position = { x: 0, y: 0, z: 0 }, direction = new THREE.Vector2(1, 1), speed = 10, size = 0.25, color = 0xFFFFFF) {
 		super(position, size, color);
 		this.speed = speed;
 		this.timeout = 0;
@@ -31,10 +31,15 @@ class Ball extends Cube {
 		this.direction.y /= magnitude;
 	}
 
+	/**
+	 * Resets the ball after a point is scored & decreases its speed
+	 * @param {Point} step The position of the ball after the next step
+	 * @param {*} p Properties of the game
+	 */
 	reset(step, p) {
 		this.direction.x *= -1;
 		this.mesh.visible = false;
-		this.timeout = 10//0;
+		this.timeout = p.rules.pointTimeout;
 		step.x = 0;
 		this.speed *= 0.8;
 	}
@@ -44,7 +49,7 @@ class Ball extends Cube {
 	 * @param {Paddle} paddle The paddle to check for collision
 	 * @param {Point} step The position of the ball after the next step
 	 * @param {Point} position The current position of the ball
-	 * @returns {Number} The height at which the ball hit the paddle, or -1 if it didn't hit the paddle
+	 * @returns {Number} The height at which the ball hit the paddle, or `-1` if it didn't hit the paddle
 	 */
 	paddleInteraction(paddle, step, position) {
 		const halfSize = this.size / 2;
@@ -60,7 +65,7 @@ class Ball extends Cube {
 			position.y + halfSize,
 			step.y - halfSize,
 		];
-		
+
 		if (Math.max(...ballXChecks) > paddle.mesh.position.x - paddle.width / 2 &&
 			Math.min(...ballXChecks) < paddle.mesh.position.x + paddle.width / 2 &&
 			Math.max(...ballYChecks) > paddle.mesh.position.y - paddle.height / 2 &&
@@ -69,64 +74,116 @@ class Ball extends Cube {
 		return (-1);
 	}
 
-	update(delta, p) {
+	/**
+	 * Checks if the ball is in timeout and decreases the timeout if it is
+	 * @returns {Boolean} `true` if the ball is in timeout, `false` otherwise
+	 */
+	checkTimeout() {
 		if (this.timeout > 0) {
 			if (this.timeout == 1)
-			this.mesh.visible = true;
+				this.mesh.visible = true;
 			this.timeout--;
-			return;
+			return (true);
 		}
-		if (this.speed > p.rules.ballMaxSpeed)
-			this.speed = p.rules.ballMaxSpeed;
-		if (this.speed < 2)
+		return (false);
+	}
+
+	/**
+	 * Checks if the ball is going too fast and decreases its speed if it is or increases it if it is too slow
+	 * @param {Number} ballMaxSpeed The maximum speed of the ball
+	 */
+	checkSpeed(ballMaxSpeed) {
+		if (this.speed > ballMaxSpeed)
+			this.speed = ballMaxSpeed;
+		else if (this.speed < 2)
 			this.speed = 2;
-		const step = {
-			x: this.mesh.position.x + this.direction.x * this.speed * p.camera.aspect * 0.5 * delta,
-			y: this.mesh.position.y + this.direction.y * this.speed * p.camera.aspect * 0.5 * delta
-		}
-		
-		if (step.y>= p.rules.maxHeight - this.size / 2) {
-			this.mesh.position.y = p.rules.maxHeight - this.size / 2 + .01;
+	}
+
+	/**
+	 * Checks if the ball will be out of bounds on the next step and bounces it if it will
+	 * @param {Point} step The position of the ball after the next step
+	 * @param {*} rules Rules of the game
+	 */
+	checkBallOutOfBounds(step, rules) {
+		if (step.y >= rules.maxHeight - this.size / 2) {
+			step.y = rules.maxHeight - this.size / 2 + .01;
 			if (this.direction.y > 0)
 				this.direction.y *= -1;
 		}
-		if (step.y <= -p.rules.maxHeight + this.size / 2) {
-			this.mesh.position.y = -p.rules.maxHeight + this.size / 2 - .01;
+		else if (step.y <= -rules.maxHeight + this.size / 2) {
+			step.y = -rules.maxHeight + this.size / 2 - .01;
 			if (this.direction.y < 0)
 				this.direction.y *= -1;
 		}
+	}
 
-		const paddleRIntersection = this.paddleInteraction(p.meshes.paddleR, step, this.mesh.position);
+	/**
+	 * Checks if the ball will bounce on a paddle on the next step and bounces it if it will
+	 * @param {Point} step The position of the ball after the next step
+	 * @param {*} p Properties of the game
+	 * @param {Paddle} paddleL The left paddle
+	 * @param {Paddle} paddleR The right paddle
+	 * @returns {Boolean} `true` if the ball bounced on a paddle, `false` otherwise
+	 */
+	checkBallPaddlesBounce(step, p, paddleL, paddleR) {
+		const paddleRIntersection = this.paddleInteraction(paddleR, step, this.mesh.position);
 		if (paddleRIntersection != -1 && this.direction.x > 0) {
 			if (step.x >= p.rules.maxWidth - this.size / 2)
 				step.x = p.rules.maxWidth - this.size / 2;
 			this.direction.x *= -1;
-			this.setDirection(new THREE.Vector2(this.direction.x, paddleRIntersection / p.meshes.paddleR.height * 2 - 1));
-			p.meshes.paddleR.bump(p);
+			this.setDirection(new THREE.Vector2(this.direction.x, paddleRIntersection / paddleR.height * 2 - 1));
+			paddleR.bump(p);
 			this.speed *= 1.1;
-			return;
+			return (true);
 		}
-		const paddleLIntersection = this.paddleInteraction(p.meshes.paddleL, step, this.mesh.position);
+		const paddleLIntersection = this.paddleInteraction(paddleL, step, this.mesh.position);
 		if (paddleLIntersection != -1 && this.direction.x < 0) {
 			if (step.x <= -p.rules.maxWidth + this.size / 2)
 				step.x = -p.rules.maxWidth + this.size / 2;
 			this.direction.x *= -1;
-			this.setDirection(new THREE.Vector2(this.direction.x, paddleLIntersection / p.meshes.paddleL.height * 2 - 1));
-			p.meshes.paddleL.bump(p);
+			this.setDirection(new THREE.Vector2(this.direction.x, paddleLIntersection / paddleL.height * 2 - 1));
+			paddleL.bump(p);
 			this.speed *= 1.1;
-			return;
+			return (true);
 		}
+		return (false);
+	}
 
-		if (step.x >= p.rules.maxWidth - this.size / 2)	{
-			this.mesh.position.x = p.rules.maxWidth - this.size / 2;
+	/**
+	 * Checks if the ball will score a point on the next step and scores it if it will
+	 * @param {Point} step The position of the ball after the next step
+	 * @param {*} p Properties of the game
+	 */
+	checkBallScored(step, p) {
+		if (step.x >= p.rules.maxWidth - this.size / 2) {
+			step.x = p.rules.maxWidth - this.size / 2;
 			this.reset(step, p);
 			p.scoreL = ++document.getElementById('scoreL').innerHTML;
 		}
 		else if (step.x <= -p.rules.maxWidth + this.size / 2) {
-			this.mesh.position.x = -p.rules.maxWidth + this.size / 2;
+			step.x = -p.rules.maxWidth + this.size / 2;
 			this.reset(step, p);
 			p.scoreR = ++document.getElementById('scoreR').innerHTML;
 		}
+	}
+
+
+	update(delta, p) {
+		if (this.checkTimeout())
+			return;
+		this.checkSpeed(p.rules.ballMaxSpeed);
+
+		const step = {
+			x: this.mesh.position.x + this.direction.x * this.speed * p.camera.aspect * 0.5 * delta,
+			y: this.mesh.position.y + this.direction.y * this.speed * p.camera.aspect * 0.5 * delta
+		}
+
+		this.checkBallOutOfBounds(step, p.rules);
+
+		if (this.checkBallPaddlesBounce(step, p, p.meshes.paddleL, p.meshes.paddleR))
+			return;
+
+		this.checkBallScored(step, p);
 
 		this.mesh.position.x = step.x;
 		this.mesh.position.y = step.y;
