@@ -31,6 +31,14 @@ class Ball extends Cube {
 		this.direction.y /= magnitude;
 	}
 
+	reset(step, p) {
+		this.direction.x *= -1;
+		this.mesh.visible = false;
+		this.timeout = 10//0;
+		step.x = 0;
+		this.speed *= 0.8;
+	}
+
 	/**
 	 * Checks if the ball will hit a paddle on the next step and returns the height at which it will hit the paddle
 	 * @param {Paddle} paddle The paddle to check for collision
@@ -64,22 +72,28 @@ class Ball extends Cube {
 	update(delta, p) {
 		if (this.timeout > 0) {
 			if (this.timeout == 1)
-				this.mesh.visible = true;
+			this.mesh.visible = true;
 			this.timeout--;
 			return;
 		}
+		if (this.speed > p.rules.ballMaxSpeed)
+			this.speed = p.rules.ballMaxSpeed;
+		if (this.speed < 2)
+			this.speed = 2;
 		const step = {
 			x: this.mesh.position.x + this.direction.x * this.speed * p.camera.aspect * 0.5 * delta,
 			y: this.mesh.position.y + this.direction.y * this.speed * p.camera.aspect * 0.5 * delta
 		}
 		
 		if (step.y>= p.rules.maxHeight - this.size / 2) {
-			this.mesh.position.y = p.rules.maxHeight - this.size / 2;
-			this.direction.y *= -1;
+			this.mesh.position.y = p.rules.maxHeight - this.size / 2 + .01;
+			if (this.direction.y > 0)
+				this.direction.y *= -1;
 		}
-		else if (step.y <= -p.rules.maxHeight + this.size / 2) {
-			this.mesh.position.y = -p.rules.maxHeight + this.size / 2;
-			this.direction.y *= -1;
+		if (step.y <= -p.rules.maxHeight + this.size / 2) {
+			this.mesh.position.y = -p.rules.maxHeight + this.size / 2 - .01;
+			if (this.direction.y < 0)
+				this.direction.y *= -1;
 		}
 
 		const paddleRIntersection = this.paddleInteraction(p.meshes.paddleR, step, this.mesh.position);
@@ -89,6 +103,7 @@ class Ball extends Cube {
 			this.direction.x *= -1;
 			this.setDirection(new THREE.Vector2(this.direction.x, paddleRIntersection / p.meshes.paddleR.height * 2 - 1));
 			p.meshes.paddleR.bump(p);
+			this.speed *= 1.1;
 			return;
 		}
 		const paddleLIntersection = this.paddleInteraction(p.meshes.paddleL, step, this.mesh.position);
@@ -98,26 +113,19 @@ class Ball extends Cube {
 			this.direction.x *= -1;
 			this.setDirection(new THREE.Vector2(this.direction.x, paddleLIntersection / p.meshes.paddleL.height * 2 - 1));
 			p.meshes.paddleL.bump(p);
+			this.speed *= 1.1;
 			return;
 		}
 
 		if (step.x >= p.rules.maxWidth - this.size / 2)	{
 			this.mesh.position.x = p.rules.maxWidth - this.size / 2;
-			this.direction.x *= -1;
-			this.mesh.visible = false;
-			step.x = 0;
-			step.y = 0;
-			this.timeout = 100;
-			console.log("Player 1 win 1 point!");
+			this.reset(step, p);
+			p.scoreL = ++document.getElementById('scoreL').innerHTML;
 		}
 		else if (step.x <= -p.rules.maxWidth + this.size / 2) {
 			this.mesh.position.x = -p.rules.maxWidth + this.size / 2;
-			this.direction.x *= -1;
-			this.mesh.visible = false;
-			step.x = 0;
-			step.y = 0;
-			this.timeout = 100;
-			console.log("Player 2 wins 1 point!");
+			this.reset(step, p);
+			p.scoreR = ++document.getElementById('scoreR').innerHTML;
 		}
 
 		this.mesh.position.x = step.x;

@@ -19,14 +19,15 @@ function main() {
 	const rules = {
 		maxHeight: visibleHeight / 2,
 		maxWidth: visibleWidth / 2,
-		maxPoints: 5,
+		maxPoints: 11,
 		paddleSpeed: 10,
-		ballSpeed: 10
+		ballSpeed: 10,
+		ballMaxSpeed: 20
 	}
 
 	const meshes = {};
 
-	const ball = new Ball({x:0, y:0, z:0}, new THREE.Vector2(1, 0), rules.ballSpeed);
+	const ball = new Ball({x:0, y:0, z:0}, new THREE.Vector2(-1, -1.3), rules.ballSpeed);
 	meshes.ball = ball;
 	scene.add(ball.mesh);
 
@@ -73,7 +74,9 @@ function main() {
 		renderer: renderer,
 		scene: scene,
 		camera: camera,
-		rules: rules
+		rules: rules,
+		scoreL: 0,
+		scoreR: 0
 	};
 
 	window.addEventListener('resize', () => {
