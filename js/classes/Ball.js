@@ -9,18 +9,6 @@ class Ball extends Cube {
 		this.setDirection(direction);
 	}
 
-	getSpeed() {
-		return this.speed;
-	}
-
-	getDirection() {
-		return this.direction;
-	}
-
-	setSpeed(speed) {
-		this.speed = speed;
-	}
-
 	setDirection(direction) {
 		this.direction = {
 			x: direction.x,
@@ -31,11 +19,27 @@ class Ball extends Cube {
 		this.direction.y /= magnitude;
 	}
 
-	paddleInteraction(paddle, step) {
-		return (step.x <= paddle.getPosition().x + paddle.getWidth() / 2 + this.size / 2 &&
-			step.x >= paddle.getPosition().x - paddle.getWidth() / 2 - this.size / 2 &&
-			step.y <= paddle.getPosition().y + paddle.getHeight() / 2 + this.size / 2 &&
-			step.y >= paddle.getPosition().y - paddle.getHeight() / 2 - this.size / 2);
+	paddleInteraction(paddle, step, position, meshes) {
+		const halfSize = this.size / 2;
+		const ballXChecks = [
+			position.x - halfSize,
+			step.x + halfSize,
+			position.x + halfSize,
+			step.x - halfSize,
+		];
+		const ballYChecks = [
+			position.y - halfSize,
+			step.y + halfSize,
+			position.y + halfSize,
+			step.y - halfSize,
+		];
+		
+		if (Math.max(...ballXChecks) > paddle.mesh.position.x - paddle.width / 2 &&
+			Math.min(...ballXChecks) < paddle.mesh.position.x + paddle.width / 2 &&
+			Math.max(...ballYChecks) > paddle.mesh.position.y - paddle.height / 2 &&
+			Math.min(...ballYChecks) < paddle.mesh.position.y + paddle.height / 2)
+			return (true);
+		return (false);
 	}
 
 	update(delta, p) {
@@ -45,34 +49,11 @@ class Ball extends Cube {
 			this.timeout--;
 			return;
 		}
-		const step = this.mesh.position;
-		step.x += this.direction.x * this.speed * delta;
-		step.y += this.direction.y * this.speed * delta;
-
-		if (step.x >= p.rules.maxWidth - this.size / 2)	{
-			this.mesh.position.x = p.rules.maxWidth - this.size / 2;
-			this.direction.x *= -1;
-			this.mesh.visible = false;
-			this.setPosition(0, 0, 0);
-			this.timeout = 100;
+		const step = {
+			x: this.mesh.position.x + this.direction.x * this.speed * p.camera.aspect * 0.5 * delta,
+			y: this.mesh.position.y + this.direction.y * this.speed * p.camera.aspect * 0.5 * delta
 		}
-		else if (step.x <= -p.rules.maxWidth + this.size / 2) {
-			this.mesh.position.x = -p.rules.maxWidth + this.size / 2;
-			this.direction.x *= -1;
-			this.mesh.visible = false;
-			this.setPosition(0, 0, 0);
-			this.timeout = 100;
-		}
-		else if (this.paddleInteraction(p.meshes.paddleR, step) &&
-			this.direction.x > 0) {
-			this.direction.x *= -1;
-			p.meshes.paddleR.bump(p);
-		}
-		else if (this.paddleInteraction(p.meshes.paddleL, step) &&
-			this.direction.x < 0) {
-			this.direction.x *= -1;
-			p.meshes.paddleL.bump(p);
-		}
+		
 		if (step.y>= p.rules.maxHeight - this.size / 2) {
 			this.mesh.position.y = p.rules.maxHeight - this.size / 2;
 			this.direction.y *= -1;
@@ -81,6 +62,40 @@ class Ball extends Cube {
 			this.mesh.position.y = -p.rules.maxHeight + this.size / 2;
 			this.direction.y *= -1;
 		}
+
+		if (this.paddleInteraction(p.meshes.paddleR, step, this.mesh.position, p.meshes) &&
+			this.direction.x > 0) {
+			if (step.x >= p.rules.maxWidth - this.size / 2)
+				step.x = p.rules.maxWidth - this.size / 2;
+			this.direction.x *= -1;
+			p.meshes.paddleR.bump(p);
+			return;
+		}
+		else if (this.paddleInteraction(p.meshes.paddleL, step, this.mesh.position, p.meshes) &&
+			this.direction.x < 0) {
+			if (step.x <= -p.rules.maxWidth + this.size / 2)
+				step.x = -p.rules.maxWidth + this.size / 2;
+			this.direction.x *= -1;
+			p.meshes.paddleL.bump(p);
+			return;
+		}
+		else if (step.x >= p.rules.maxWidth - this.size / 2)	{
+			this.mesh.position.x = p.rules.maxWidth - this.size / 2;
+			this.direction.x *= -1;
+			this.mesh.visible = false;
+			step.x = 0;
+			step.y = 0;
+			this.timeout = 100;
+		}
+		else if (step.x <= -p.rules.maxWidth + this.size / 2) {
+			this.mesh.position.x = -p.rules.maxWidth + this.size / 2;
+			this.direction.x *= -1;
+			this.mesh.visible = false;
+			step.x = 0;
+			step.y = 0;
+			this.timeout = 100;
+		}
+
 		this.mesh.position.x = step.x;
 		this.mesh.position.y = step.y;
 	}

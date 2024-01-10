@@ -13,22 +13,6 @@ class Cube {
 		this.mesh.position.set(this.x, this.y, this.z);
 	}
 
-	getMesh() {
-		return this.mesh;
-	}
-
-	setPosition(x, y, z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.mesh.position.set(this.x, this.y, this.z);
-	}
-
-	setSize(size) {
-		this.size = size;
-		this.geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
-	}
-
 	setColor(color) {
 		this.color = color;
 		this.material = new THREE.MeshBasicMaterial({ color: this.color });

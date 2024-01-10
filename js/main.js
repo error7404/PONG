@@ -19,21 +19,44 @@ function main() {
 	const rules = {
 		maxHeight: visibleHeight / 2,
 		maxWidth: visibleWidth / 2,
-		maxPoints: 5
+		maxPoints: 5,
+		paddleSpeed: 10,
+		ballSpeed: 5
 	}
 
 	const meshes = {};
 
-	const ball = new Ball({x:0, y:0, z:0}, new THREE.Vector2(1, 0));
+	const ball = new Ball({x:0, y:0, z:0}, new THREE.Vector2(1, 0), rules.ballSpeed);
 	meshes.ball = ball;
-	scene.add(ball.getMesh());
+	scene.add(ball.mesh);
 
 	const paddleL = new Paddle({x:-(visibleWidth / 2) / 1.2, y:0, z:0}, {'up': 'KeyW', 'down': 'KeyS'});
 	meshes.paddleL = paddleL;
-	scene.add(paddleL.getMesh());
+	scene.add(paddleL.mesh);
 	const paddleR = new Paddle({x:(visibleWidth / 2) / 1.2, y:0, z:0}, {'up': 'ArrowUp', 'down': 'ArrowDown'});
 	meshes.paddleR = paddleR;
-	scene.add(paddleR.getMesh());
+	scene.add(paddleR.mesh);
+
+	let testPaddle = new Paddle({x:0, y:0, z:0}, {'up': 'KeyW', 'down': 'KeyS'}, .1, .5, 0x00FF00);
+	meshes.testPaddle = testPaddle;
+	testPaddle.mesh.visible = false;
+	scene.add(testPaddle.mesh);
+	let testPaddle0 = new Paddle({x:0, y:0, z:0}, {'up': 'KeyW', 'down': 'KeyS'}, .1, .5, 0xFF0000);
+	meshes.testPaddle0 = testPaddle0;
+	testPaddle0.mesh.visible = false;
+	scene.add(testPaddle0.mesh);
+	let testPaddle1 = new Paddle({x:0, y:0, z:0}, {'up': 'KeyW', 'down': 'KeyS'}, .1, .5, 0x0000FF);
+	meshes.testPaddle1 = testPaddle1;
+	testPaddle1.mesh.visible = false;
+	scene.add(testPaddle1.mesh);
+	let testPaddle2 = new Paddle({x:0, y:0, z:0}, {'up': 'KeyW', 'down': 'KeyS'}, .1, .5, 0xFFFF00);
+	meshes.testPaddle2 = testPaddle2;
+	testPaddle2.mesh.visible = false;
+	scene.add(testPaddle2.mesh);
+	let testPaddle3 = new Paddle({x:0, y:0, z:0}, {'up': 'KeyW', 'down': 'KeyS'}, 1, .5, 0x00FFFF);
+	meshes.testPaddle3 = testPaddle3;
+	testPaddle3.mesh.visible = false;
+	scene.add(testPaddle3.mesh);
 
 	const animations = [new THREE.AnimationClip('bump', .2, [
 		new THREE.VectorKeyframeTrack('.scale', [0, 0.1, 0.2], [
@@ -59,8 +82,20 @@ function main() {
 		camera.updateProjectionMatrix();
 		const visibleWidth = visibleHeight * camera.aspect;
 		proprietes.rules.maxWidth = visibleWidth / 2;
-		paddleL.setPosition(-(visibleWidth / 2) / 1.2, 0, 0);
-		paddleR.setPosition((visibleWidth / 2) / 1.2, 0, 0);
+		paddleL.mesh.position.set(-(visibleWidth / 2) / 1.2, 0, 0);
+		paddleR.mesh.position.set((visibleWidth / 2) / 1.2, 0, 0);
+		if (ball.mesh.position.x > rules.maxWidth - ball.size / 2)
+		{
+			ball.mesh.position.x = rules.maxWidth - ball.size / 2;
+			if (ball.direction.x > 0)
+				ball.direction.x *= -1;
+		}
+		else if (ball.mesh.position.x < -rules.maxWidth + ball.size / 2)
+		{
+			ball.mesh.position.x = -rules.maxWidth + ball.size / 2;
+			if (ball.direction.x < 0)
+				ball.direction.x *= -1;
+		}
 	});
 
 	requestAnimationFrame((time) => render(time, proprietes));

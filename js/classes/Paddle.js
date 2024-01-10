@@ -15,46 +15,21 @@ class Paddle {
 		this.mesh.position.y = this.y;
 		this.mesh.position.z = this.z;
 		this.mixer = new THREE.AnimationMixer(this.mesh);
+		this.Up = false;
+		this.Down = false;
 
 		window.addEventListener('keydown', (event) => {
 			if (event.code == keys.up)
-				this.mesh.position.y += 0.1;
-			if (event.code == keys.down)
-				this.mesh.position.y -= 0.1;
+				this.Up = true;
+			else if (event.code == keys.down)
+				this.Down = true;
 		});
-	}
-
-	getMesh() {
-		return this.mesh;
-	}
-
-	getWidth() {
-		return this.width;
-	}
-
-	getHeight() {
-		return this.height;
-	}
-
-	getPosition() {
-		return {
-			x: this.mesh.position.x,
-			y: this.mesh.position.y,
-			z: this.mesh.position.z
-		};
-	}
-
-	setPosition(x, y, z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.mesh.position.set(this.x, this.y, this.z);
-	}
-
-	setSize(width, height) {
-		this.width = width;
-		this.height = height;
-		this.geometry = new THREE.BoxGeometry(this.width, this.height, 0);
+		window.addEventListener('keyup', (event) => {
+			if (event.code == keys.up)
+				this.Up = false;
+			else if (event.code == keys.down)
+				this.Down = false;
+		});
 	}
 
 	setColor(color) {
@@ -70,6 +45,10 @@ class Paddle {
 	}
 
 	update(delta, p) {
+		if (this.Up)
+			this.mesh.position.y += p.rules.paddleSpeed * delta;
+		if (this.Down)
+			this.mesh.position.y -= p.rules.paddleSpeed * delta;
 		// this.mesh.position.y = this.y + Math.sin(p.clock.getElapsedTime()) * 4;
 		if (this.mesh.position.y + this.height / 2 > p.rules.maxHeight)
 			this.mesh.position.y = p.rules.maxHeight - this.height / 2;
