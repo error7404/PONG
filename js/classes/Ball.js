@@ -15,6 +15,7 @@ class Ball extends Cube {
 		this.speed = speed;
 		this.timeout = 0;
 		this.setDirection(direction);
+		this.mixer = new THREE.AnimationMixer(this.mesh);
 	}
 
 	/**
@@ -106,12 +107,12 @@ class Ball extends Cube {
 	 */
 	checkBallOutOfBounds(step, rules) {
 		if (step.y >= rules.maxHeight - this.size / 2) {
-			step.y = rules.maxHeight - this.size / 2 + .01;
+			step.y = rules.maxHeight - this.size / 2 - .01;
 			if (this.direction.y > 0)
 				this.direction.y *= -1;
 		}
 		else if (step.y <= -rules.maxHeight + this.size / 2) {
-			step.y = -rules.maxHeight + this.size / 2 - .01;
+			step.y = -rules.maxHeight + this.size / 2 + .01;
 			if (this.direction.y < 0)
 				this.direction.y *= -1;
 		}
@@ -169,6 +170,7 @@ class Ball extends Cube {
 
 
 	update(delta, p) {
+		this.mixer.update(delta);
 		if (this.checkTimeout())
 			return;
 		this.checkSpeed(p.rules.ballMaxSpeed);
