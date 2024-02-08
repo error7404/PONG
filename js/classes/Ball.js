@@ -10,8 +10,8 @@ import { Paddle } from './Paddle.js';
  */
 
 class Ball extends Cube {
-	constructor(position = { x: 0, y: 0, z: 0 }, direction = new THREE.Vector2(1, 1), speed = 10, size = 0.25, color = 0xFFFFFF) {
-		super(position, size, color);
+	constructor(position = { x: 0, y: 0, z: 0 }, direction = new THREE.Vector2(1, 1), speed = 10, is_3D = false, size = 0.25, color = 0xFEFEFE) {
+		super(position, size, color, is_3D);
 		this.speed = speed;
 		this.timeout = 0;
 		this.setDirection(direction);

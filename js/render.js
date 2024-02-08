@@ -13,7 +13,7 @@ function render(time, p) {
 		p.meshes[mesh].update(delta, p);
 	}
 
-	p.renderer.render(p.scene, p.camera);
+	p.composer.render(delta);
 
 	requestAnimationFrame((time) => render(time, p));
 }

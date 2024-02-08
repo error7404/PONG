@@ -13,6 +13,7 @@ import { Paddle } from "./classes/Paddle";
 function createEventListeners(p, ball, paddleL, paddleR, rules, visibleHeight) {
 	window.addEventListener('resize', () => {
 		p.renderer.setSize(window.innerWidth, window.innerHeight);
+		p.composer.setSize(window.innerWidth, window.innerHeight);
 		p.camera.aspect = window.innerWidth / window.innerHeight;
 		p.camera.updateProjectionMatrix();
 		const visibleWidth = visibleHeight * p.camera.aspect;

@@ -1,4 +1,10 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+import { RenderPixelatedPass } from 'three/examples/jsm/postprocessing/RenderPixelatedPass.js';
+import { InvertShader } from './shaders/invertShader.js';
 import { createMeshes } from './createMeshes.js';
 import { createEventListeners } from './eventListeners.js';
 import { render } from './render.js';
@@ -8,12 +14,20 @@ function main() {
 	const renderer = new THREE.WebGLRenderer({ canvas });
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	const aspect = window.innerWidth / window.innerHeight;
-	const camera = new THREE.PerspectiveCamera(80, aspect, 0.1, 5);
-	camera.position.z = 5;
+	const camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 100);
+	camera.position.z = 7;
+
+	const effect3D = true;
+	if (effect3D) {
+		camera.position.z = 7;
+		camera.position.y = -1.5;
+		camera.rotateX(THREE.MathUtils.degToRad(10));
+	}
 
 	const scene = new THREE.Scene();
+	scene.background = new THREE.Color(0xFFFFFF);
 
-	const distance = Math.abs(camera.position.z); // distance from camera to objects
+	const distance = Math.sqrt(camera.position.x**2 + camera.position.y**2 + camera.position.z**2);
 	const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * distance;
 	const visibleWidth = visibleHeight * aspect;
 	const rules = {
@@ -23,7 +37,9 @@ function main() {
 		paddleSpeed: 10,
 		ballSpeed: 10,
 		ballMaxSpeed: 20,
-		pointTimeout: 100
+		pointTimeout: 10,//100,
+		effect3D: effect3D,
+		antiAliasing: true,
 	}
 
 	const meshes = createMeshes(scene, visibleWidth, visibleHeight, rules);
@@ -36,11 +52,24 @@ function main() {
 		])
 	])];
 
+	const composer = new EffectComposer(renderer);
+	const renderPass = new RenderPass(scene, camera);
+	composer.addPass(renderPass);
+	const piexelsPass = new RenderPixelatedPass(1, scene, camera, {normalEdgeStrength: 10000});
+	composer.addPass(piexelsPass);
+	const invertShader = new ShaderPass(InvertShader);
+	composer.addPass(invertShader);
+	const antiAliasingPass = new ShaderPass(FXAAShader);
+	antiAliasingPass.material.uniforms['resolution'].value.y = 1 / window.innerHeight;
+	if (rules.antiAliasing)
+		composer.addPass(antiAliasingPass);
+
 	var proprietes = {
 		clock: new THREE.Clock(),
 		animations: animations,
 		meshes: meshes,
 		renderer: renderer,
+		composer: composer,
 		scene: scene,
 		camera: camera,
 		rules: rules,

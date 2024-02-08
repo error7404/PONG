@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Paddle } from './classes/Paddle.js';
 import { Ball } from './classes/Ball.js';
-import texturePath from '../textures/center_line.png';
+import texturePath from '../textures/reverse_center_line.png';
 
 /**
  * Creates the meshes of the game
@@ -21,19 +21,23 @@ function createMeshes(scene, visibleWidth, visibleHeight, rules) {
 	texture.minFilter = THREE.NearestFilter;
 	texture.magFilter = THREE.NearestFilter;
 	const centerLine = new THREE.Mesh(
-		new THREE.PlaneGeometry(.1, visibleHeight),
+		new THREE.PlaneGeometry(.1, visibleHeight * 1.15),
 		new THREE.MeshBasicMaterial({ map: texture })
 	);
+	centerLine.position.x = 0;
+	centerLine.position.z = -1;
+	if (rules.effect3D)
+		centerLine.position.y = .25;
 	scene.add(centerLine);
 
-	const ball = new Ball({ x: 0, y: 0, z: 0 }, new THREE.Vector2(-1, -1.3), rules.ballSpeed);
+	const ball = new Ball({ x: 0, y: 0, z: 0 }, new THREE.Vector2(-1, -1.3), rules.ballSpeed, rules.effect3D);
 	meshes.ball = ball;
 	scene.add(ball.mesh);
 
-	const paddleL = new Paddle({ x: -(visibleWidth / 2) / 1.2, y: 0, z: 0 }, { 'up': 'KeyW', 'down': 'KeyS' });
+	const paddleL = new Paddle({ x: -(visibleWidth / 2) / 1.2, y: 0, z: 0 }, { 'up': 'KeyW', 'down': 'KeyS' }, rules.effect3D);
 	meshes.paddleL = paddleL;
 	scene.add(paddleL.mesh);
-	const paddleR = new Paddle({ x: (visibleWidth / 2) / 1.2, y: 0, z: 0 }, { 'up': 'ArrowUp', 'down': 'ArrowDown' });
+	const paddleR = new Paddle({ x: (visibleWidth / 2) / 1.2, y: 0, z: 0 }, { 'up': 'ArrowUp', 'down': 'ArrowDown' }, rules.effect3D);
 	meshes.paddleR = paddleR;
 	scene.add(paddleR.mesh);
 
