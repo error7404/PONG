@@ -1,18 +1,15 @@
 # PONG
 a pong game in threeJS
 
-## Installation
-
-Have [node](https://nodejs.org/) & [npm](https://www.npmjs.com) installed
-
-install dependencies
-```sh
-npm i
-```
-
 ## Running
-run pong
-```sh
-npm start
-```
+
+you just need to have a web server running, here are some examples:
+
+- python -m http.server (Python 3.x)
+- npx http-server (Node.js)
+- npx five-server (Node.js)
+- php -S localhost:8000 (PHP 5.4+)
+- python -m SimpleHTTPServer (Python 2.x)
+
+and goin to the browser and type `localhost:8000` or the port you are using.
 

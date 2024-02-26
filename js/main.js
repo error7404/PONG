@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
-import { RenderPixelatedPass } from 'three/examples/jsm/postprocessing/RenderPixelatedPass.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
 import { InvertShader } from './shaders/invertShader.js';
 import { createMeshes } from './createMeshes.js';
 import { createEventListeners } from './eventListeners.js';
@@ -37,7 +37,7 @@ function main() {
 		paddleSpeed: 10,
 		ballSpeed: 10,
 		ballMaxSpeed: 20,
-		pointTimeout: 10,//100,
+		pointTimeout: 100,
 		effect3D: effect3D,
 		antiAliasing: true,
 	}

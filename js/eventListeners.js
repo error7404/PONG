@@ -1,5 +1,5 @@
-import { Ball } from "./classes/Ball";
-import { Paddle } from "./classes/Paddle";
+import { Ball } from "./classes/Ball.js";
+import { Paddle } from "./classes/Paddle.js";
 
 /**
  * Creates the event listeners for the game (resize, visibility change)
