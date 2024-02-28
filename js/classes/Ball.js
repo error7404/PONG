@@ -13,7 +13,8 @@ class Ball extends Cube {
 	constructor(position = { x: 0, y: 0, z: 0 }, direction = new THREE.Vector2(1, 1), speed = 10, is_3D = false, size = 0.25, color = 0xFEFEFE) {
 		super(position, size, color, is_3D);
 		this.speed = speed;
-		this.timeout = 0;
+		this.timeout = 50;
+		this.mesh.visible = false;
 		this.setDirection(direction);
 		this.mixer = new THREE.AnimationMixer(this.mesh);
 	}
@@ -77,13 +78,14 @@ class Ball extends Cube {
 
 	/**
 	 * Checks if the ball is in timeout and decreases the timeout if it is
+	 * @param {Number} delta The time since the last frame
 	 * @returns {Boolean} `true` if the ball is in timeout, `false` otherwise
 	 */
-	checkTimeout() {
+	checkTimeout(delta) {
 		if (this.timeout > 0) {
-			if (this.timeout == 1)
+			if (this.timeout <= 1)
 				this.mesh.visible = true;
-			this.timeout--;
+			this.timeout -= delta * 50;
 			return (true);
 		}
 		return (false);
@@ -171,7 +173,7 @@ class Ball extends Cube {
 
 	update(delta, p) {
 		this.mixer.update(delta);
-		if (this.checkTimeout())
+		if (this.checkTimeout(delta))
 			return;
 		this.checkSpeed(p.rules.ballMaxSpeed);
 
