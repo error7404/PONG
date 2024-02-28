@@ -9,7 +9,7 @@ import { createMeshes } from './createMeshes.js';
 import { createEventListeners } from './eventListeners.js';
 import { render } from './render.js';
 
-function main() {
+function createGame() {
 	const canvas = document.querySelector('#canvas');
 	const renderer = new THREE.WebGLRenderer({ canvas });
 	renderer.setPixelRatio(window.devicePixelRatio);
@@ -67,7 +67,7 @@ function main() {
 	if (rules.antiAliasing)
 		composer.addPass(antiAliasingPass);
 
-	var proprietes = {
+	let properties = {
 		clock: new THREE.Clock(),
 		animations: animations,
 		meshes: meshes,
@@ -81,9 +81,22 @@ function main() {
 		scoreR: 0
 	};
 
-	createEventListeners(proprietes, meshes.ball, meshes.paddleL, meshes.paddleR, rules, visibleHeight);
-
-	requestAnimationFrame((time) => render(time, proprietes));
+	createEventListeners(properties, meshes.ball, meshes.paddleL, meshes.paddleR, rules, visibleHeight);
+	return properties;
 }
 
-window.addEventListener('load', main);
+function launchGame(player1 = "", player2 = "", maxPoints = -1) {
+	if (player1 === "" || player2 === "") {
+		console.log("player1 or player2 can't be empty")
+		return;
+	}
+	let properties = createGame();
+	if (maxPoints !== -1)
+		properties.rules.maxPoints = maxPoints;
+	properties.meshes.paddleL.name = player1;
+	properties.meshes.paddleR.name = player2;
+
+	requestAnimationFrame(() => render(properties));
+}
+
+export { launchGame };

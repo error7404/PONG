@@ -15,7 +15,10 @@
 			}
 		}
 	</script>
-	<script type="module" src="js/main.js"></script>
+	<script type="module">
+		import { launchGame } from './js/main.js';
+		launchGame("Left player", "Right player");
+	</script>
 </head>
 
 <body>

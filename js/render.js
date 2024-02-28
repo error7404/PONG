@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-function render(time, p) {
+function render(p) {
 	if (p.scoreL >= p.rules.maxPoints || p.scoreR >= p.rules.maxPoints)
 	{
 		const filter = document.getElementById('filter');
@@ -8,9 +8,9 @@ function render(time, p) {
 		const endScreen = document.getElementById('endScreen');
 		endScreen.style.opacity = 1;
 		if (p.scoreL >= p.rules.maxPoints)
-			endScreen.innerHTML = 'Left player wins!';
+			endScreen.innerHTML = `${p.meshes.paddleL.name} wins!`;
 		else
-			endScreen.innerHTML = 'Right player wins!';
+			endScreen.innerHTML = `${p.meshes.paddleR.name} wins!`;
 		console.log("the end");
 		return;
 	}
@@ -23,7 +23,7 @@ function render(time, p) {
 
 	p.composer.render(delta);
 
-	requestAnimationFrame((time) => render(time, p));
+	requestAnimationFrame(() => render(p));
 }
 
 export { render };
