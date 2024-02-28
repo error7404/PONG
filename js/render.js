@@ -11,7 +11,12 @@ function render(p) {
 			endScreen.innerHTML = `${p.meshes.paddleL.name} wins!`;
 		else
 			endScreen.innerHTML = `${p.meshes.paddleR.name} wins!`;
-		console.log("the end");
+		p.promise({
+			player1: p.meshes.paddleL.name,
+			player2: p.meshes.paddleR.name,
+			score1: p.scoreL,
+			score2: p.scoreR
+		});
 		return;
 	}
 

@@ -85,18 +85,26 @@ function createGame() {
 	return properties;
 }
 
+/**
+ * @summary Launch a game of pong
+ * @param {string} player1: name of the first player
+ * @param {string} player2: name of the second player
+ * @param {number} maxPoints: maximum points to win the game
+ * @returns {Promise<Object>} a promise that resolves when the game is over with
+ * an object with the following properties:
+ * {player1: string, player2: string, score1: number, score2: number}
+ */
 function launchGame(player1 = "", player2 = "", maxPoints = -1) {
-	if (player1 === "" || player2 === "") {
-		console.log("player1 or player2 can't be empty")
-		return;
-	}
-	let properties = createGame();
-	if (maxPoints !== -1)
-		properties.rules.maxPoints = maxPoints;
-	properties.meshes.paddleL.name = player1;
-	properties.meshes.paddleR.name = player2;
-
-	requestAnimationFrame(() => render(properties));
+	return new Promise((resolve, reject) => {
+		let properties = createGame();
+		if (maxPoints > 0)
+			properties.rules.maxPoints = maxPoints;
+		properties.meshes.paddleL.name = player1;
+		properties.meshes.paddleR.name = player2;
+		properties.promise = resolve;
+		
+		requestAnimationFrame(() => render(properties));
+	});
 }
 
 export { launchGame };
