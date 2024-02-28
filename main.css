@@ -3,7 +3,22 @@ body {
 	margin: 0;
 }
 
-#canvas {
+@font-face {
+	font-family: 'Pong Font';
+	src: url(fonts/PONG-Regular.otf);
+  }
+
+.score {
+	position: absolute;
+	top: 2vh;
+	font-size: calc(10vh + 10vw);
+	font-family: 'Pong Font', sans-serif;
+	color: #FFFFFFFF;
+	z-index: 100;
+	display:block;
+}
+
+#canvas, #filter {
 	position: absolute;
 	top: 5vh;
 	left: 5vw;
@@ -12,17 +27,27 @@ body {
 	border-radius: 40px;
 }
 
-@font-face {
-	font-family: 'Pong Font';
-	src: url(fonts/PONG-Regular.otf);
-  }
+#filter {
+	background-color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+}
 
-.score {
+#filter, #endScreen {
+	transition: opacity .6s ease-in-out;
+	opacity: 0;
+}
+
+#endScreen {
 	position: absolute;
-	top: 1vh;
-	font-size: 20vh;
-	font-family: 'Pong Font', sans-serif;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: #000000FF;
+	border-radius: 20px;
+	padding: 5%;
+	font-size: calc(2vh + 2vw);
 	color: #FFFFFFFF;
-	z-index: 100;
-	display:block;
+	font-family: 'Brandish', sans-serif;
+	text-align: center;
+	justify-content: center;
 }
