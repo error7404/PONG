@@ -12,9 +12,10 @@ import { Paddle } from "./classes/Paddle.js";
  */
 function createEventListeners(p, ball, paddleL, paddleR, rules, visibleHeight) {
 	window.addEventListener('resize', () => {
-		p.renderer.setSize(window.innerWidth, window.innerHeight);
-		p.composer.setSize(window.innerWidth, window.innerHeight);
-		p.camera.aspect = window.innerWidth / window.innerHeight;
+		p.renderer.setPixelRatio(window.devicePixelRatio);
+		p.renderer.setSize(p.canvas.clientWidth, p.canvas.clientHeight, false);
+		p.composer.setSize(p.canvas.clientWidth, p.canvas.clientHeight);
+		p.camera.aspect = p.canvas.clientWidth / p.canvas.clientHeight;
 		p.camera.updateProjectionMatrix();
 		const visibleWidth = visibleHeight * p.camera.aspect;
 		rules.maxWidth = visibleWidth / 2;

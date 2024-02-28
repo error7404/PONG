@@ -12,8 +12,9 @@ import { render } from './render.js';
 function main() {
 	const canvas = document.querySelector('#canvas');
 	const renderer = new THREE.WebGLRenderer({ canvas });
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	const aspect = window.innerWidth / window.innerHeight;
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+	const aspect = canvas.clientWidth / canvas.clientHeight;
 	const camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 100);
 	camera.position.z = 7;
 
@@ -53,6 +54,8 @@ function main() {
 	])];
 
 	const composer = new EffectComposer(renderer);
+	composer.setSize(canvas.clientWidth, canvas.clientHeight);
+	composer.setPixelRatio(window.devicePixelRatio);
 	const renderPass = new RenderPass(scene, camera);
 	composer.addPass(renderPass);
 	const piexelsPass = new RenderPixelatedPass(1, scene, camera, {normalEdgeStrength: 10000});
@@ -60,7 +63,7 @@ function main() {
 	const invertShader = new ShaderPass(InvertShader);
 	composer.addPass(invertShader);
 	const antiAliasingPass = new ShaderPass(FXAAShader);
-	antiAliasingPass.material.uniforms['resolution'].value.y = 1 / window.innerHeight;
+	antiAliasingPass.material.uniforms['resolution'].value.y = 1 / canvas.clientHeight;
 	if (rules.antiAliasing)
 		composer.addPass(antiAliasingPass);
 
@@ -73,6 +76,7 @@ function main() {
 		scene: scene,
 		camera: camera,
 		rules: rules,
+		canvas: canvas,
 		scoreL: 0,
 		scoreR: 0
 	};
