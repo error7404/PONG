@@ -88,6 +88,7 @@ class Ball extends Cube {
 			this.timeout -= delta * 50;
 			return (true);
 		}
+		this.mesh.visible = true;
 		return (false);
 	}
 
