@@ -17,18 +17,24 @@ class Paddle {
 		this.Down = false;
 
 		window.addEventListener('keydown', (event) => {
-			event.preventDefault();
-			if (event.code == keys.up)
+			if (event.code == keys.up) {
+				event.preventDefault();
 				this.Up = true;
-			else if (event.code == keys.down)
+			}
+			else if (event.code == keys.down) {
+				event.preventDefault();
 				this.Down = true;
+			}
 		});
 		window.addEventListener('keyup', (event) => {
-			event.preventDefault();
-			if (event.code == keys.up)
+			if (event.code == keys.up) {
+				event.preventDefault();
 				this.Up = false;
-			else if (event.code == keys.down)
+			}
+			else if (event.code == keys.down) {
+				event.preventDefault();
 				this.Down = false;
+			}
 		});
 	}
 
