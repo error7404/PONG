@@ -17,12 +17,14 @@ class Paddle {
 		this.Down = false;
 
 		window.addEventListener('keydown', (event) => {
+			event.preventDefault();
 			if (event.code == keys.up)
 				this.Up = true;
 			else if (event.code == keys.down)
 				this.Down = true;
 		});
 		window.addEventListener('keyup', (event) => {
+			event.preventDefault();
 			if (event.code == keys.up)
 				this.Up = false;
 			else if (event.code == keys.down)
