@@ -33,7 +33,7 @@ function createGame() {
 	const visibleWidth = visibleHeight * aspect;
 	const rules = {
 		maxHeight: visibleHeight / 2,
-		maxWidth: visibleWidth / 2,
+		maxWidth: visibleWidth / 2 / 1.2,
 		maxPoints: 11,
 		paddleSpeed: 10,
 		ballSpeed: 10,

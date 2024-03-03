@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Paddle } from './classes/Paddle.js';
 import { Ball } from './classes/Ball.js';
+import { Explosion } from './classes/Explosion.js';
 
 /**
  * Creates the meshes of the game
@@ -33,12 +34,18 @@ function createMeshes(scene, visibleWidth, visibleHeight, rules) {
 	meshes.ball = ball;
 	scene.add(ball.mesh);
 
-	const paddleL = new Paddle({ x: -(visibleWidth / 2) / 1.2, y: 0, z: 0 }, { 'up': 'KeyW', 'down': 'KeyS' }, rules.effect3D);
+	const paddleL = new Paddle({ x: -(visibleWidth / 2) / 1.3, y: 0, z: 0 }, { 'up': 'KeyW', 'down': 'KeyS' }, rules.effect3D);
 	meshes.paddleL = paddleL;
 	scene.add(paddleL.mesh);
-	const paddleR = new Paddle({ x: (visibleWidth / 2) / 1.2, y: 0, z: 0 }, { 'up': 'ArrowUp', 'down': 'ArrowDown' }, rules.effect3D);
+	const paddleR = new Paddle({ x: (visibleWidth / 2) / 1.3, y: 0, z: 0 }, { 'up': 'ArrowUp', 'down': 'ArrowDown' }, rules.effect3D);
 	meshes.paddleR = paddleR;
 	scene.add(paddleR.mesh);
+
+	const explosion = new Explosion({ x: 0, y: 0, z: 0 }, .1, 0xFEFEFE, 10, rules.effect3D);
+	meshes.explosion = explosion;
+	for (const cube of explosion.cubes) {
+		scene.add(cube.mesh);
+	}
 
 	return (meshes);
 }
