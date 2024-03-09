@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-function render(p) {
+function renderOnce(p){
 	if (p.scoreL >= p.rules.maxPoints || p.scoreR >= p.rules.maxPoints)
 	{
 		const filter = document.getElementById('filter');
@@ -17,7 +17,7 @@ function render(p) {
 			score1: p.scoreL,
 			score2: p.scoreR
 		});
-		return;
+		return (1);
 	}
 
 	const delta = p.clock.getDelta();
@@ -27,8 +27,13 @@ function render(p) {
 	}
 
 	p.composer.render(delta);
+	return (0);
+}
 
+function render(p) {
+	if (renderOnce(p))
+		return;
 	requestAnimationFrame(() => render(p));
 }
 
-export { render };
+export { render, renderOnce };
