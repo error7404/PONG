@@ -17,7 +17,9 @@
 	</script>
 	<script type="module">
 		import { launchGame } from './js/main.js';
-		console.log(await launchGame("Left player", "Right player"));
+		document.getElementById('game').addEventListener('click', () => {
+			launchGame('Player 1', 'Player 2', window.propreties);
+		});
 	</script>
 </head>
 

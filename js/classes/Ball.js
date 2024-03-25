@@ -13,7 +13,7 @@ class Ball extends Cube {
 	constructor(position = { x: 0, y: 0, z: 0 }, direction = new THREE.Vector2(1, 1), speed = 10, is_3D = false, size = 0.25, color = 0xFEFEFE) {
 		super(position, size, color, is_3D);
 		this.speed = speed;
-		this.timeout = 50;
+		this.timeout = 150;
 		this.mesh.visible = false;
 		this.setDirection(direction);
 		this.mixer = new THREE.AnimationMixer(this.mesh);
@@ -181,8 +181,8 @@ class Ball extends Cube {
 		this.checkSpeed(p.rules.ballMaxSpeed);
 
 		const step = {
-			x: this.mesh.position.x + this.direction.x * this.speed * p.camera.aspect * 0.5 * delta,
-			y: this.mesh.position.y + this.direction.y * this.speed * p.camera.aspect * 0.5 * delta
+			x: this.mesh.position.x + this.direction.x * this.speed * delta,
+			y: this.mesh.position.y + this.direction.y * this.speed * delta
 		}
 
 		this.checkBallOutOfBounds(step, p.rules);

@@ -4,6 +4,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { InvertShader } from './shaders/invertShader.js';
 import { createMeshes } from './createMeshes.js';
 import { createEventListeners } from './eventListeners.js';
@@ -27,86 +28,130 @@ import { render, renderOnce } from './render.js';
  * 		- ballMaxSpeed: the maximum speed of the ball
  * 		- pointTimeout: the time in milliseconds between points
  * 		- effect3D: a boolean to enable the 3D effect
- * 		- antiAliasing: a boolean to enable anti-aliasing
  * 	- canvas: a HTMLCanvasElement object
  * 	- scoreL: the score of the left player
  * 	- scoreR: the score of the right player
  */
-function createGame() {
-	const canvas = document.querySelector('#canvas');
-	const renderer = new THREE.WebGLRenderer({ canvas });
-	renderer.setPixelRatio(window.devicePixelRatio);
-	renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-	const aspect = canvas.clientWidth / canvas.clientHeight;
-	const camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 100);
-	camera.position.z = 7;
+async function createGame() {
+	return (new Promise((resolve) => {
+		const canvas = document.querySelector('#canvas');
+		const renderer = new THREE.WebGLRenderer({ canvas });
+		renderer.setPixelRatio(window.devicePixelRatio);
+		renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
 
-	const effect3D = true;
-	if (effect3D) {
-		camera.position.z = 7;
-		camera.position.y = -1.5;
-		camera.rotateX(THREE.MathUtils.degToRad(10));
-	}
+		const scene = new THREE.Scene();
 
-	const scene = new THREE.Scene();
-	scene.background = new THREE.Color(0xFFFFFF);
+		let cameraMixer;
+		let lookatMixer;
+		new GLTFLoader().load('static/models/arcade_room.gltf', (gltf) => {
+			const model = gltf.scene;
+			const camera = model.getObjectByName('GameIsoCam');
+			camera.aspect = canvas.clientWidth / canvas.clientHeight;
+			camera.updateProjectionMatrix();
+			const lookat = model.getObjectByName('CameraLookat');
+			/** @type {THREE.Mesh} */
+			const screen = model.getObjectByName('Screen');
+			const screenSize = screen.geometry.boundingBox.getSize(new THREE.Vector3());
+			const aspect = screenSize.z / screenSize.y;
 
-	const distance = Math.sqrt(camera.position.x**2 + camera.position.y**2 + camera.position.z**2);
-	const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * distance;
-	const visibleWidth = visibleHeight * aspect;
-	const rules = {
-		maxHeight: visibleHeight / 2,
-		maxWidth: visibleWidth / 2 / 1.2,
-		maxPoints: 11,
-		paddleSpeed: 10,
-		ballSpeed: 10,
-		ballMaxSpeed: 20,
-		pointTimeout: 100,
-		effect3D: effect3D,
-		antiAliasing: false,
-	}
 
-	const meshes = createMeshes(scene, visibleWidth, visibleHeight, rules);
+			if (gltf.animations.length == 2) {
+				cameraMixer = new THREE.AnimationMixer(camera);
+				lookatMixer = new THREE.AnimationMixer(lookat);
+				const cameraAnimation = gltf.animations[0];
+				cameraAnimation.tracks.forEach((track) => {
+					track.name = track.name.replace('GameIsoCam', camera.uuid);
+				});
+				let action = cameraMixer.clipAction(cameraAnimation);
+				action.play();
+				action.repetitions = 1;
+				action.clampWhenFinished = true;
+				action = lookatMixer.clipAction(gltf.animations[1]);
+				action.play();
+				action.repetitions = 1;
+				action.clampWhenFinished = true;
+			}
+			scene.add(model);
+		
+			const gameCamera = new THREE.PerspectiveCamera(50, aspect, 0.1, 1000);
+			gameCamera.position.z = 7;
+		
+			const effect3D = true;
+			if (effect3D) {
+				gameCamera.position.z = 7;
+				gameCamera.position.y = -1.5;
+				gameCamera.rotateX(THREE.MathUtils.degToRad(10));
+			}
+		
+			const gameScene = new THREE.Scene();
+			gameScene.background = new THREE.Color(0xFFFFFF);
+		
+			const distance = Math.sqrt(gameCamera.position.x**2 + gameCamera.position.y**2 + gameCamera.position.z**2);
+			const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(gameCamera.fov) / 2) * distance;
+			const visibleWidth = visibleHeight * aspect;
+			const rules = {
+				maxHeight: visibleHeight / 2,
+				maxWidth: visibleWidth / 2 / 1.2,
+				maxPoints: 5,
+				paddleSpeed: 10,
+				ballSpeed: 5,
+				ballMaxSpeed: 20,
+				pointTimeout: 100,
+				effect3D: effect3D,
+			}
+		
+			const meshes = createMeshes(gameScene, visibleWidth, visibleHeight, rules, model);
+		
+			const animations = [new THREE.AnimationClip('bump', .2, [
+				new THREE.VectorKeyframeTrack('.scale', [0, 0.1, 0.2], [
+					1, 1, 1,
+					1.5, 1.5, 1,
+					1, 1, 1
+				])
+			])];
+		
+			const renderTarget = new THREE.WebGLRenderTarget(screenSize.x, screenSize.y);
+			const composer = new EffectComposer(renderer, renderTarget);
+			const material = new THREE.MeshBasicMaterial({ map: renderTarget.texture });
+			screen.material = material;
 
-	const animations = [new THREE.AnimationClip('bump', .2, [
-		new THREE.VectorKeyframeTrack('.scale', [0, 0.1, 0.2], [
-			1, 1, 1,
-			1.5, 1.5, 1,
-			1, 1, 1
-		])
-	])];
 
-	const composer = new EffectComposer(renderer);
-	composer.setSize(canvas.clientWidth, canvas.clientHeight);
-	composer.setPixelRatio(window.devicePixelRatio);
-	const renderPass = new RenderPass(scene, camera);
-	composer.addPass(renderPass);
-	const piexelsPass = new RenderPixelatedPass(1, scene, camera, {normalEdgeStrength: 10000});
-	composer.addPass(piexelsPass);
-	const invertShader = new ShaderPass(InvertShader);
-	composer.addPass(invertShader);
-	const antiAliasingPass = new ShaderPass(FXAAShader);
-	antiAliasingPass.material.uniforms['resolution'].value.y = 1 / canvas.clientHeight;
-	if (rules.antiAliasing)
-		composer.addPass(antiAliasingPass);
-
-	let properties = {
-		clock: new THREE.Clock(),
-		animations: animations,
-		meshes: meshes,
-		renderer: renderer,
-		composer: composer,
-		scene: scene,
-		camera: camera,
-		rules: rules,
-		canvas: canvas,
-		scoreL: 0,
-		scoreR: 0
-	};
-
-	createEventListeners(properties, meshes.ball, meshes.paddleL, meshes.paddleR, rules, visibleHeight);
-	renderOnce(properties);
-	return properties;
+			composer.setPixelRatio(window.devicePixelRatio);
+			composer.setSize(canvas.clientWidth, canvas.clientHeight);
+			const piexelsPass = new RenderPixelatedPass(1, gameScene, gameCamera, {normalEdgeStrength: 10000});
+			composer.addPass(piexelsPass);
+			const invertShader = new ShaderPass(InvertShader);
+			composer.addPass(invertShader);
+			const antiAliasingPass = new ShaderPass(FXAAShader);
+			antiAliasingPass.material.uniforms['resolution'].value.y = 1 / canvas.clientHeight;
+			composer.addPass(antiAliasingPass);
+			const renderPass = new RenderPass(gameScene, gameCamera);
+			renderPass.renderToScreen = true;
+			composer.addPass(renderPass);
+		
+			let properties = {
+				clock: new THREE.Clock(),
+				animations: animations,
+				meshes: meshes,
+				renderer: renderer,
+				composer: composer,
+				scene: scene,
+				camera: camera,
+				rules: rules,
+				canvas: canvas,
+				scoreL: 0,
+				scoreR: 0,
+				cameraMixer: cameraMixer,
+				lookatMixer: lookatMixer,
+				room: model,
+			};
+			properties.clock.stop();
+		
+			createEventListeners(properties, meshes.ball, meshes.paddleL, meshes.paddleR, rules, visibleHeight);
+			renderOnce(properties);
+			resolve(properties);
+		});
+	}));
 }
 
 /**
@@ -118,8 +163,11 @@ function createGame() {
  * an object with the following properties:
  * {player1: string, player2: string, score1: number, score2: number}
  */
-function launchGame(player1 = "", player2 = "", properties = createGame()) {
-	return new Promise((resolve, reject) => {
+async function launchGame(player1 = "Left player", player2 = "Right player", properties = undefined) {
+	if (!properties)
+		properties = await createGame();
+	await properties.clock.start();
+	return new Promise(async(resolve) => {
 		properties.meshes.paddleL.name = player1;
 		properties.meshes.paddleR.name = player2;
 		properties.promise = resolve;
@@ -128,4 +176,5 @@ function launchGame(player1 = "", player2 = "", properties = createGame()) {
 	});
 }
 
+window.propreties = await createGame();
 export { launchGame, createGame };

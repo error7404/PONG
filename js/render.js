@@ -26,7 +26,11 @@ function renderOnce(p){
 		p.meshes[mesh].update(delta, p);
 	}
 
+	p.cameraMixer.update(delta);
+	p.lookatMixer.update(delta);
+
 	p.composer.render(delta);
+	p.renderer.render(p.scene, p.camera);
 	return (0);
 }
 
