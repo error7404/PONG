@@ -1,16 +1,20 @@
 
 body {
 	margin: 0;
-	background-color: rgb(37, 37, 37);
+}
+
+.content {
+	overflow: hidden;
 }
 
 @font-face {
 	font-family: 'Pong Font';
-	src: url(fonts/PONG-Regular.otf);
+	src: url(../game/fonts/PONG-Regular.otf);
   }
 
 .score {
 	display: flex;
+	transition: opacity .2s ease-in-out;
 	justify-content: center;
 	align-items: center;
 	position: absolute;
@@ -19,6 +23,7 @@ body {
 	font-family: 'Pong Font', sans-serif;
 	color: #FFFFFFFF;
 	z-index: 2;
+	opacity: 0;
 }
 
 #game{
@@ -26,7 +31,7 @@ body {
 	left: 5vw;
 	margin-top: 5vh;
 	width: 90vw;
-	height: 90vh;
+	height: 75vh;
 }
 
 #canvas {
@@ -55,8 +60,12 @@ body {
 }
 
 #endScreen {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 	position: absolute;
-	top: calc(5vh + 50%);
+	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	background-color: #000000FF;
@@ -64,8 +73,7 @@ body {
 	padding: 30px;
 	font-size: calc(2vh + 2vw);
 	color: #FFFFFFFF;
-	font-family: 'Brandish', sans-serif;
+	font-family: 'Courier New', Courier, monospace;
 	text-align: center;
-	justify-content: center;
 	z-index: 3;
 }
