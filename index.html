@@ -7,6 +7,7 @@
 	<title>PONG</title>
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
 	<link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+	<link rel='stylesheet' type='text/css' media='screen' href='bootstrap.min.css'>
 	<script type="importmap">
 		{
 			"imports": {
@@ -17,9 +18,16 @@
 	</script>
 	<script type="module">
 		import { launchGame } from './js/main.js';
-		document.getElementById('game').addEventListener('click', () => {
-			launchGame('Player 1', 'Player 2', window.propreties);
-		});
+		async function startGame() {
+			document.getElementById('game').removeEventListener('click', startGame);
+			setTimeout(() => {
+				for (let i = 0; i < document.getElementsByClassName("score").length; i++) {
+					document.getElementsByClassName("score")[i].style.opacity = 1;
+				}
+			}, 3000);
+			console.log(await launchGame('Player 1', 'Player 2', window.propreties));
+		}
+		document.getElementById('game').addEventListener('click', startGame);
 	</script>
 </head>
 
