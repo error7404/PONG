@@ -49,7 +49,6 @@ async function createGame() {
 			camera.aspect = canvas.clientWidth / canvas.clientHeight;
 			camera.updateProjectionMatrix();
 			const lookat = model.getObjectByName('CameraLookat');
-			/** @type {THREE.Mesh} */
 			const screen = model.getObjectByName('Screen');
 			const screenSize = screen.geometry.boundingBox.getSize(new THREE.Vector3());
 			const aspect = screenSize.z / screenSize.y;
@@ -147,7 +146,7 @@ async function createGame() {
 			};
 			properties.clock.stop();
 		
-			createEventListeners(properties, meshes.ball, meshes.paddleL, meshes.paddleR, rules, visibleHeight);
+			createEventListeners(properties);
 			renderOnce(properties);
 			resolve(properties);
 			displayTutorial();
