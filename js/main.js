@@ -95,6 +95,7 @@ async function createGame() {
 				paddleSpeed: 10,
 				ballSpeed: 5,
 				ballMaxSpeed: 20,
+				ballMinSpeed: 5,
 				pointTimeout: 100,
 				effect3D: effect3D,
 			}

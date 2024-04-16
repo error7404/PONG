@@ -43,7 +43,10 @@ class Ball extends Cube {
 		this.mesh.visible = false;
 		this.timeout = p.rules.pointTimeout;
 		step.x = 0;
-		this.speed *= 0.8;
+		if (this.speed > p.rules.ballSpeed)
+			this.speed = (this.speed + p.rules.ballSpeed) / 2.5;
+		else
+			this.speed *= 0.8;
 	}
 
 	/**
@@ -95,12 +98,13 @@ class Ball extends Cube {
 	/**
 	 * Checks if the ball is going too fast and decreases its speed if it is or increases it if it is too slow
 	 * @param {Number} ballMaxSpeed The maximum speed of the ball
+	 * @param {Number} ballMinSpeed The minimum speed of the ball
 	 */
-	checkSpeed(ballMaxSpeed) {
+	checkSpeed(ballMaxSpeed, ballMinSpeed) {
 		if (this.speed > ballMaxSpeed)
 			this.speed = ballMaxSpeed;
-		else if (this.speed < 2)
-			this.speed = 2;
+		else if (this.speed < ballMinSpeed)
+			this.speed = ballMinSpeed;
 	}
 
 	/**
@@ -180,7 +184,7 @@ class Ball extends Cube {
 		this.mixer.update(delta);
 		if (this.checkTimeout(delta))
 			return;
-		this.checkSpeed(p.rules.ballMaxSpeed);
+		this.checkSpeed(p.rules.ballMaxSpeed, p.rules.ballMinSpeed);
 
 		const step = {
 			x: this.mesh.position.x + this.direction.x * this.speed * delta,

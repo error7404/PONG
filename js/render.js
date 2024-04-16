@@ -4,9 +4,11 @@ function renderOnce(p){
 	if (p.scoreL >= p.rules.maxPoints || p.scoreR >= p.rules.maxPoints)
 	{
 		const filter = document.getElementById('filter');
-		filter.style.opacity = 1;
+		if (filter)
+			filter.style.opacity = 1;
 		const endScreen = document.getElementById('endScreen');
-		endScreen.style.opacity = 1;
+		if (endScreen)
+			endScreen.style.opacity = 1;
 		if (p.scoreL >= p.rules.maxPoints)
 			endScreen.innerHTML = `${p.meshes.paddleL.name} wins!`;
 		else
