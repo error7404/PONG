@@ -17,7 +17,7 @@
 		}
 	</script>
 	<script type="module">
-		import { launchGame } from './js/main.js';
+		import { launchGame, createGame } from './js/main.js';
 		async function startGame() {
 			document.getElementById('game').removeEventListener('click', startGame);
 			setTimeout(() => {
@@ -25,9 +25,10 @@
 					document.getElementsByClassName("score")[i].style.opacity = 1;
 				}
 			}, 3000);
-			console.log(await launchGame('Player 1', 'Player 2', window.propreties));
+			console.log(await launchGame(window.propreties));
 		}
 		document.getElementById('game').addEventListener('click', startGame);
+		window.propreties = await createGame("Player 1", "Player 2");
 	</script>
 </head>
 
