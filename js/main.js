@@ -153,8 +153,8 @@ async function createGame(player1 = "Left player", player2 = "Right player", ) {
 		
 			createEventListeners(properties);
 			renderOnce(properties);
-			resolve(properties);
 			displayTutorial(player1, player2);
+			resolve(properties);
 		});
 	}));
 }
@@ -186,7 +186,6 @@ async function launchGame(properties = undefined) {
 async function displayTutorial(player1, player2)
 {
 	const url = 'static/html/tutorial.html';
-	document.querySelector('#endScreen').style.opacity = '1';
     try
     {
         const response = await fetch(url);

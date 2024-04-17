@@ -11,7 +11,6 @@ function createEventListeners(p) {
 		p.composer.setSize(p.canvas.clientWidth, p.canvas.clientHeight);
 		p.camera.aspect = p.canvas.clientWidth / p.canvas.clientHeight;
 		p.camera.updateProjectionMatrix();
-		renderOnce(p);
 	});
 
 	document.addEventListener('visibilitychange', () => {
