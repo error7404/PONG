@@ -13,3 +13,4 @@ you just need to have a web server running, here are some examples:
 
 and goin to the browser and type `localhost:8000` or the port you are using.
 
+![preview](https://github.com/user-attachments/assets/f503bcb2-8041-4246-84f3-4a5d40c12503)
