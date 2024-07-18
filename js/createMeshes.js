@@ -15,7 +15,7 @@ function createMeshes(scene, visibleWidth, visibleHeight, rules) {
 
 	const meshes = {};
 
-	const texture = new THREE.TextureLoader().load("/static/textures/reverse_center_line.png");
+	const texture = new THREE.TextureLoader().load("static/textures/reverse_center_line.png");
 	texture.repeat.set(1, visibleHeight);
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.minFilter = THREE.NearestFilter;
